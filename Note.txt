@@ -1,0 +1,4 @@
+# A regular note writing stuff down
+1. check g++, clang version => g++ --verison,  clang++ --version
+2. to remove the file, use del instead rm. => del rooster.exe
+3. to use the compiler from MS, start with the dev powershell, cd to the dir, and code .
