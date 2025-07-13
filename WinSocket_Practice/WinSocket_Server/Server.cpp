@@ -1,14 +1,21 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
+#include <mmsystem.h>
 #include <iostream>
 #include <vector>
 
 #pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "winmm.lib")
+
+
 
 int main() {
+    timeBeginPeriod(1);
     WSADATA wsaData;
     SOCKET serverSocket;
     sockaddr_in serverAddr;
+    
 
     // Initialize Winsock
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -56,8 +63,8 @@ int main() {
 
         // Set timeout
         timeval timeout;
-        timeout.tv_sec = 1;
-        timeout.tv_usec = 0;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 10*1000;
 
         // Wait for activity
         int activity = select(0, &readSet, nullptr, nullptr, &timeout);
@@ -65,6 +72,7 @@ int main() {
             std::cerr << "select() failed.\n";
             break;
         }
+        DWORD start = GetTickCount64();
 
         // Incoming connection?
         if (FD_ISSET(serverSocket, &readSet)) {
@@ -91,9 +99,16 @@ int main() {
                     continue; // Don't increment index since we erased
                 }
                 else {
+                    DWORD elapsed = GetTickCount64() - start;
+                    std::cout << elapsed << "\n";
+                    // Step 3: Wait the remaining time to reach 16ms
+                    if (elapsed < 16) {
+                        Sleep(16 - elapsed);  // sleep only what¡¯s necessary
+                    }
+                    std::cout << GetTickCount64() - start << "\n";
                     std::string msg(buffer, bytesReceived);
                     std::cout << "Received: " << msg << "\n";
-                    send(client, buffer, bytesReceived, 0); // Echo back
+                    // send(client, buffer, bytesReceived, 0); // Echo back
                 }
             }
             ++i;
@@ -106,5 +121,6 @@ int main() {
     }
     closesocket(serverSocket);
     WSACleanup();
+    timeEndPeriod(1);    // Always clean up
     return 0;
 }

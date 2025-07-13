@@ -1,6 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\WinSocket_Server"
   ],
+  "SelectedNode": "\\WinSocket_Server\\Server.cpp",
   "PreviewInSolutionExplorer": false
 }
